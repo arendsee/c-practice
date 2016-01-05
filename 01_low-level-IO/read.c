@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 int main(){
-    size_t buffer_size = 128;
+    size_t buffer_size = 8;
     char buffer[buffer_size];
     int nread;
     int write_result;
