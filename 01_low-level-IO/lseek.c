@@ -12,14 +12,17 @@ int main(){
 
     fildes = open("sample.txt", O_RDONLY);
 
+    // goto index 1
     lseek(fildes, 1, SEEK_SET);
     read(fildes, buffer, 2); 
     write(fildes, buffer, 2);
 
+    // go foward two
     lseek(fildes, 2, SEEK_CUR);
     read(fildes, buffer, 2); 
     write(fildes, buffer, 2);
 
+    // go to end
     lseek(fildes, 0, SEEK_END);
     read(fildes, buffer, 2); 
     write(fildes, buffer, 2);
