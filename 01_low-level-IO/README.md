@@ -58,3 +58,29 @@ restrictions of umask; it will be ORed against umask.
 ## umask
 
 A umask of 022 forbids write permissions for anyone other than the user.
+
+## stat, fstat, lstat
+
+These programs allow access to file or file descriptor attributes. For example,
+all the data that ls -l gives you is accessible through stat.
+
+fstat takes a file descriptor
+stat takes a file
+lstat takes a symbolic link
+
+## Libraries
+
+ * fcntl.h - includes creat, open, fcntl
+ * stdlib.h - see man
+   * defines EXIT_FAILURE / EXIT_SUCCESS
+   * a couple types (like size_t)
+   * atof and friends
+   * exit
+   * malloc and free
+   * rand
+   * strtof and friends
+ * sys/stat.h
+   * stat, fstat, lstat
+ * sys/types.h
+ * unistd.h - standard symbolic constants and types
+   * chdir, chown, close, dup, isatty, link, nice, read, unlink, write
