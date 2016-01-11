@@ -33,5 +33,8 @@ int main(){
     if(g != NULL)
         fclose(g);
 
+    // calling fclose it not strictly necessary since it will be called
+    // automatically on all streams open when the program ends
+
     return(0);
 }
