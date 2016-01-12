@@ -17,7 +17,7 @@ filestream -> buffer
 */
 
 /* syntax for fwrite
-size_t fread(void *ptr, size_t size, size_t nitems, FILE *stream);
+size_t fwrite(void *ptr, size_t size, size_t nitems, FILE *stream);
 
 Where
     * ptr    - a pointer to the data buffer (to read from)
