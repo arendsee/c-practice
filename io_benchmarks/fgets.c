@@ -7,6 +7,11 @@ int main(){
     FILE * stream = fopen("test.txt", "r");        
     unsigned int i = 0;
 
+    if(stream == 0){
+       fprintf(stderr, "Could not read file\n"); 
+       exit(EXIT_FAILURE);
+    }
+
     while(fgets(buffer, n, stream) != NULL){
         i++;
     }
