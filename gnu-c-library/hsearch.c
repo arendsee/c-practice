@@ -44,9 +44,9 @@ int main(void){
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     // POSIX: There can be only one hash in memory at a time
     hcreate(nel);
-
     // GNU:
     struct hsearch_data *htab;
+    htab = calloc(nel, sizeof(struct hsearch_data));
     hcreate_r(nel, htab);
     //----------------------------------------------------------------
 
@@ -60,7 +60,6 @@ int main(void){
     // add entry to hash table
     // POSIX:
     hsearch(ent, ENTER);
-
     // GNU:
     hsearch_r(ent, ENTER, &retptr, htab);
     //----------------------------------------------------------------
@@ -74,7 +73,6 @@ int main(void){
     // POSIX: returns retptr
     retptr = hsearch(*srcptr, FIND);
     printf("POSIX: %s -> %d\n", retptr->key, ((Data *)(retptr->data))->x);
-
     // GNU: sets retptr
     hsearch_r(*srcptr, FIND, &retptr, htab);
     printf("GNU: %s -> %d\n", retptr->key, ((Data *)(retptr->data))->x);
@@ -87,6 +85,7 @@ int main(void){
     hdestroy();
     // GNU:
     hdestroy_r(htab);
+    free(htab);
     //----------------------------------------------------------------
 
     exit(EXIT_SUCCESS);
