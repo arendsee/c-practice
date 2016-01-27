@@ -1,2 +1,2 @@
 clean:
-	rm -f good leak-one-byte
+	rm -f good leak-one-byte buffer-overrun
