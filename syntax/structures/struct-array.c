@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#define SIZE 5
+
 
 typedef struct G
 {
@@ -29,10 +31,13 @@ void printG(G * gs, size_t size){
 
 
 int main(){
-    size_t size = 5;
-    G g[size];
-    printG(g, size);
-    setG(g, size);
-    printG(g, size);
+    G g[SIZE];
+
+    printf("Before initialization\n------\n");
+    printG(g, SIZE);
+
+    printf("\nAfter initialization\n------\n");
+    setG(g, SIZE);
+    printG(g, SIZE);
     return(0);
 }
