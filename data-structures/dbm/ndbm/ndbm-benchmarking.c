@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include <time.h>
 
-#define SIZE 1000000
+#define SIZE 100000
 
 // A function for timing functions
 int time_function(DBM * db, void(*fun)(DBM *)){
