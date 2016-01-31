@@ -1,9 +1,11 @@
-/* How do pointers work inside a gdbm database?
- */
+/* How do pointers work inside a gdbm database?  */
+
+// This code is totally broken
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <gdbm.h>
+#include <assert.h>
 
 #define SIZE 3
 
@@ -19,7 +21,7 @@ struct Pair * create_Pair(int index){
 
     left->index = index;
     left->hand = 'L';
-    left->other  = right;
+    left->other = right;
 
     right->index = index;
     right->hand = 'R';
@@ -40,19 +42,35 @@ void print_Pair(struct Pair * pair){
     printf("\n");
 }
 
+void print_datum(datum d){
+    assert(d.dptr != NULL); 
+    assert(d.dsize != 0);
+    for(int i = 0; i < d.dsize; i++){
+        printf("%x ", d.dptr[i]);
+    }
+    printf("\n");
+}
+
 void build_db(GDBM_FILE db){
     datum key; // key to stored data
     datum val; // stored data
     struct Pair * pair;
+    //size_t ichar = sizeof(int) + 1;
 
     // insert a value
     for(int k = 0; k < SIZE; k++){
+        //char keystr[ichar];
+        //sprintf(keystr, "%d", k); 
+        //key.dptr = (void*)keystr;
+        //key.dsize = ichar;
         key.dptr = (void*)&k;
         key.dsize = sizeof(int);
-
+        
         pair = create_Pair(k);
         val.dptr = (void*)pair;
         val.dsize = sizeof(struct Pair);
+
+        print_Pair(pair);
 
         gdbm_store(db, key, val, GDBM_REPLACE);
         free_Pair(pair);
@@ -65,6 +83,7 @@ void dump(GDBM_FILE db){
     struct Pair * pair;
     // iterate through all keys
     key = gdbm_firstkey(db);
+    
     while(key.dptr){
         datum nextkey;
 
@@ -89,7 +108,7 @@ int main(){
 
     build_db(db);
 
-//    dump(db);
+    //dump(db);
 
     gdbm_close(db);
 
