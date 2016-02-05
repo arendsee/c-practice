@@ -23,8 +23,8 @@ typedef struct {
 } IPA;
 
 typedef struct {
-    IPA by_start;
-    IPA by_stop;
+    IPA * by_start;
+    IPA * by_stop;
     struct Node * l_child;
     struct Node * r_child;
 } Node;
@@ -43,8 +43,10 @@ int cmp_start(const void *ap, const void *bp){
 
 Pos point_overlap(uint, Interval);
 
+Node * init_node();
+IPA * init_ipa();
+void free_node(Node *);
 Node * build_tree(IPA, uint center);
-void free_tree(Node *);
 
 size_t nlines(FILE *);
 
@@ -88,8 +90,44 @@ int main(int argc, char ** argv){
     exit(EXIT_SUCCESS);
 }
 
-Node * build_tree(IPA intervals, uint center){
-    Node * node;
+Node * init_node(){
+    Node * node = (Node *)malloc(sizeof(Node));
+    node->by_start = NULL;
+    node->by_stop = NULL;
+    node->l_child = NULL;
+    node->r_child = NULL;
+    return(node);
+}
+
+IPA * init_ipa(){
+    IPA * ipa = (IPA *)malloc(sizeof(IPA));
+    return(ipa);
+}
+
+void free_node(Node * node){
+    if(l_child)
+        free_node(l_child);
+    if(r_child)
+        free_node(r_child);
+    if(by_start)
+        free_ipa(by_start);
+    if(by_stop)
+        free_ipa(by_stop);
+}
+
+void free_IPA(IPA * ipa){
+    for(int i = 0; i < ipa->size; i++){
+        free(ipa->v[i]);
+    }
+    if(ipa->v)
+        free(ipa->v);
+}
+
+Node * build_tree(IPA intervals, uint lower_bound, uint upper_bound){
+    uint center = (upper_bound - lower_bound) / 2;
+    uint lower_center = (center - lower_bound) / 2;
+    uint upper_center = (upper_bound - center) / 2;
+    Node * node = init_node();
     Pos * pos = (Pos *)malloc(intervals.size * sizeof(Pos));
     int npos[] = {0, 0, 0};
     for(int i = 0; i < intervals.size; i++){
@@ -98,31 +136,33 @@ Node * build_tree(IPA intervals, uint center){
         printf("%u\t%u\t%d\n", intervals.v[i]->start, intervals.v[i]->stop, pos[i]);
     }
 
-    /* TODO:
-     * - Partition input intervals between left and
-     *   right children and the intervals overlapping this node.
-     * - Call build_tree with both children
-     * - Check for stop conditions.  */
-
-    IPA I_left;
-    I_left.size = npos[lo];
-    I_left.v = (Interval **)maloc(I_left.size * sizeof(Interval *));
-
-    IPA I_center;
-    I_center.size = npos[in];
-
-    IPA I_right;
-    I_right.size = npos[hi];
+    IPA * parts[3];
+    for(int i = 0; i < 3; i++){
+        if(npos[i] > 0){
+            parts[i] = init_ipa();
+            parts[i]->size = npos[i];
+            parts[i]->v = (Interval **)maloc(npos[i] * sizeof(Interval *));
+            switch(i){
+                case lo;
+                    node->l_child = build_tree(parts[i], lower_center, upper_bound);   
+                    break;
+                case in;
+                    qsort(&parts[i]->v[0], npos[i], sizeof(Interval*), cmp_stop);
+                    node->by_start = parts[i]->v;
+                    node->by_stop = (Interval **)maloc(npos[i] * sizeof(Interval *));
+                    memcpy(node->by_stop, node->by_start, npos[i] * sizeof(Interval *));
+                    qsort(&node->by_stop->v[0], npos[i], sizeof(Interval*), cmp_stop);
+                    break;
+                case hi;
+                    node->r_child = build_tree(parts[i], lower_bound, upper_center);   
+                    break;
+            }
+        }
+    }
 
     free(pos);
-    printf("lo=%d in=%d hi=%d\n", npos[0], npos[1], npos[2]);
     
-    //qsort(&ipa.v[0], ipa.size, sizeof(Interval*), cmp_stop);
     return(node);
-}
-
-void free_tree(Node * node){
-   // STUB
 }
 
 Pos point_overlap(uint a, Interval b){
