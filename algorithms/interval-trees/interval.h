@@ -2,8 +2,8 @@
 #define __INTERVAL_H__
 
 typedef struct {
-    uint start;
-    uint stop;
+    unsigned int start;
+    unsigned int stop;
 } Interval;
 
 /* compare intervals by stop */

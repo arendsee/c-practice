@@ -1,6 +1,8 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
+#include "ipa.h"
+
 struct Node {
     IPA * by_start;
     IPA * by_stop;

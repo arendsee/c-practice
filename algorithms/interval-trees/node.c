@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "node.h"
 
 struct Node * init_node(){

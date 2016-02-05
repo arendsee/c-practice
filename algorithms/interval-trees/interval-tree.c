@@ -1,4 +1,11 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "interval-tree.h"
+#include "interval.h"
+#include "node.h"
+#include "ipa.h"
 
 typedef unsigned int uint;
 

@@ -1,5 +1,9 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "io.h"
-#include "interval-tree.h"
+#include "ipa.h"
+#include "interval.h"
 
 /* Private function for counting lines in a file */
 size_t nlines(FILE * fp){
@@ -17,29 +21,29 @@ size_t nlines(FILE * fp){
 
 IPA * load_intervals(char * filename){
     FILE * int_file;
-    size_t size;
-    Interval ** intervals; 
-    uint start, stop;
+    unsigned int start, stop;
     int_file = fopen(filename, "r");
 
     if(int_file == NULL){
-        printf("Cannot open file '%s'\n", argv[1]);
+        printf("Cannot open file '%s'\n", filename);
         exit(EXIT_FAILURE);
     }
 
-    size = nlines(int_file);
-    intervals = (Interval**)malloc(size * sizeof(Interval*));
+    IPA * ipa = init_ipa();
+
+    ipa->size = nlines(int_file);
+    ipa->v = (Interval**)malloc(ipa->size * sizeof(Interval*));
 
     /* WARNING: This loop assumes the file is formated with one pair of
      * integers on each line. No checking for this is done. If this function is
      * ported to production code, be sure to implement a check. */
     for(int i = 0; fscanf(int_file, "%d\t%d", &start, &stop) != EOF; i++){
-        intervals[i] = (Interval*)malloc(sizeof(Interval));
-        intervals[i]->start = start;
-        intervals[i]->stop = stop;
+        ipa->v[i] = (Interval*)malloc(sizeof(Interval));
+        ipa->v[i]->start = start;
+        ipa->v[i]->stop = stop;
     }
 
-    IPA ipa = {.size = size, .v = intervals};
+    fclose(int_file);
 
-    return(&ipa);
+    return(ipa);
 }
