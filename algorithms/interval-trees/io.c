@@ -32,15 +32,14 @@ IPA * load_intervals(char * filename){
     IPA * ipa = init_ipa();
 
     ipa->size = nlines(int_file);
-    ipa->v = (Interval**)malloc(ipa->size * sizeof(Interval*));
+    ipa->v = (Interval*)malloc(ipa->size * sizeof(Interval));
 
     /* WARNING: This loop assumes the file is formated with one pair of
      * integers on each line. No checking for this is done. If this function is
      * ported to production code, be sure to implement a check. */
     for(int i = 0; fscanf(int_file, "%d\t%d", &start, &stop) != EOF; i++){
-        ipa->v[i] = (Interval*)malloc(sizeof(Interval));
-        ipa->v[i]->start = start;
-        ipa->v[i]->stop = stop;
+        ipa->v[i].start = start;
+        ipa->v[i].stop = stop;
     }
 
     fclose(int_file);

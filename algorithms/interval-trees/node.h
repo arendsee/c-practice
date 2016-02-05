@@ -11,6 +11,7 @@ struct Node {
 };
 
 struct Node * init_node();
+
 void free_node(struct Node *);
 
 #endif

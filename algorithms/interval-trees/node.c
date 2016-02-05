@@ -1,13 +1,14 @@
 #include <stdlib.h>
 
 #include "node.h"
+#include "ipa.h"
 
 struct Node * init_node(){
     struct Node * node = (struct Node *)malloc(sizeof(struct Node));
     node->by_start = NULL;
-    node->by_stop = NULL;
-    node->l_child = NULL;
-    node->r_child = NULL;
+    node->by_stop  = NULL;
+    node->l_child  = NULL;
+    node->r_child  = NULL;
     return(node);
 }
 void free_node(struct Node * node){
