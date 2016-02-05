@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 typedef unsigned int uint;
 
@@ -22,12 +23,12 @@ typedef struct {
     Interval ** v;
 } IPA;
 
-typedef struct {
+struct Node {
     IPA * by_start;
     IPA * by_stop;
     struct Node * l_child;
     struct Node * r_child;
-} Node;
+};
 
 int cmp_stop(const void *ap, const void *bp){
     Interval a = ** (Interval **) ap;
@@ -43,10 +44,11 @@ int cmp_start(const void *ap, const void *bp){
 
 Pos point_overlap(uint, Interval);
 
-Node * init_node();
+struct Node * init_node();
+void free_node(struct Node *);
 IPA * init_ipa();
-void free_node(Node *);
-Node * build_tree(IPA, uint center);
+void free_ipa();
+struct Node * build_tree(IPA*, uint, uint);
 
 size_t nlines(FILE *);
 
@@ -56,8 +58,6 @@ int main(int argc, char ** argv){
     size_t size;
     Interval ** intervals; 
     uint start, stop;
-    Pos position;
-
 
     if(argc != 4){
         printf("USAGE: interval-tree <filename> <start> <stop>\n");
@@ -80,7 +80,7 @@ int main(int argc, char ** argv){
     }
 
     IPA ipa = {.size = size, .v = intervals};
-    build_tree(ipa, atoi(argv[2]));
+    build_tree(&ipa, 0, atoi(argv[2]));
 
     for(int i = 0; i < size; i++){
         free(intervals[i]);
@@ -90,8 +90,8 @@ int main(int argc, char ** argv){
     exit(EXIT_SUCCESS);
 }
 
-Node * init_node(){
-    Node * node = (Node *)malloc(sizeof(Node));
+struct Node * init_node(){
+    struct Node * node = (struct Node *)malloc(sizeof(struct Node));
     node->by_start = NULL;
     node->by_stop = NULL;
     node->l_child = NULL;
@@ -104,18 +104,18 @@ IPA * init_ipa(){
     return(ipa);
 }
 
-void free_node(Node * node){
-    if(l_child)
-        free_node(l_child);
-    if(r_child)
-        free_node(r_child);
-    if(by_start)
-        free_ipa(by_start);
-    if(by_stop)
-        free_ipa(by_stop);
+void free_node(struct Node * node){
+    if(node->l_child)
+        free_node(node->l_child);
+    if(node->r_child)
+        free_node(node->r_child);
+    if(node->by_start)
+        free_ipa(node->by_start);
+    if(node->by_stop)
+        free_ipa(node->by_stop);
 }
 
-void free_IPA(IPA * ipa){
+void free_ipa(IPA * ipa){
     for(int i = 0; i < ipa->size; i++){
         free(ipa->v[i]);
     }
@@ -123,17 +123,17 @@ void free_IPA(IPA * ipa){
         free(ipa->v);
 }
 
-Node * build_tree(IPA intervals, uint lower_bound, uint upper_bound){
+struct Node * build_tree(IPA * intervals, uint lower_bound, uint upper_bound){
     uint center = (upper_bound - lower_bound) / 2;
     uint lower_center = (center - lower_bound) / 2;
     uint upper_center = (upper_bound - center) / 2;
-    Node * node = init_node();
-    Pos * pos = (Pos *)malloc(intervals.size * sizeof(Pos));
+    struct Node * node = init_node();
+    Pos * pos = (Pos *)malloc(intervals->size * sizeof(Pos));
     int npos[] = {0, 0, 0};
-    for(int i = 0; i < intervals.size; i++){
-        pos[i] = point_overlap(center, *intervals.v[i]);  
+    for(int i = 0; i < intervals->size; i++){
+        pos[i] = point_overlap(center, *intervals->v[i]);  
         npos[pos[i]]++;
-        printf("%u\t%u\t%d\n", intervals.v[i]->start, intervals.v[i]->stop, pos[i]);
+        printf("%u\t%u\t%d\n", intervals->v[i]->start, intervals->v[i]->stop, pos[i]);
     }
 
     IPA * parts[3];
@@ -141,19 +141,21 @@ Node * build_tree(IPA intervals, uint lower_bound, uint upper_bound){
         if(npos[i] > 0){
             parts[i] = init_ipa();
             parts[i]->size = npos[i];
-            parts[i]->v = (Interval **)maloc(npos[i] * sizeof(Interval *));
+            parts[i]->v = (Interval **)malloc(npos[i] * sizeof(Interval *));
             switch(i){
-                case lo;
+                case lo:
                     node->l_child = build_tree(parts[i], lower_center, upper_bound);   
                     break;
-                case in;
+                case in:
                     qsort(&parts[i]->v[0], npos[i], sizeof(Interval*), cmp_stop);
-                    node->by_start = parts[i]->v;
-                    node->by_stop = (Interval **)maloc(npos[i] * sizeof(Interval *));
-                    memcpy(node->by_stop, node->by_start, npos[i] * sizeof(Interval *));
+                    node->by_start = parts[i];
+                    node->by_stop = init_ipa();
+                    node->by_stop->size = npos[i];
+                    node->by_stop->v = (Interval **)malloc(npos[i] * sizeof(Interval *));
+                    memcpy(node->by_stop->v, node->by_start->v, npos[i] * sizeof(Interval *));
                     qsort(&node->by_stop->v[0], npos[i], sizeof(Interval*), cmp_stop);
                     break;
-                case hi;
+                case hi:
                     node->r_child = build_tree(parts[i], lower_bound, upper_center);   
                     break;
             }
