@@ -1,8 +1,7 @@
 CFLAGS=-Wall -g
 
-all: minimal
-
-build-docs:
+all:
+	cc -o minimal src/minimal.c
 	doxygen Doxyfile
 
 clean:
