@@ -2,9 +2,6 @@
 
 #include "ipa.h"
 
-// REMOVE ME
-#include <stdio.h>
-
 IPA * init_ipa(){
     IPA * ipa = (IPA *)malloc(sizeof(IPA));
     ipa->size = 0;

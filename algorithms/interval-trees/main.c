@@ -22,9 +22,7 @@ int main(int argc, char ** argv){
     // TODO unhardcode
     struct Node * node = build_tree(ipa, 0, 1000);
 
-    if(ipa)
-        free_ipa(ipa);
-    if(node)
-        free_node(node);
+    free_node(node);
+
     exit(EXIT_SUCCESS);
 }

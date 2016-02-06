@@ -20,4 +20,6 @@ void free_node(struct Node * node){
         free_ipa(node->by_start);
     if(node->by_stop)
         free_ipa(node->by_stop);
+    if(node)
+        free(node);
 }
