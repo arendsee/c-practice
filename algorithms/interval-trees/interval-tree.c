@@ -7,13 +7,36 @@
 #include "node.h"
 #include "ipa.h"
 
-struct Node * build_tree(IPA * intervals, uint lower_bound, uint upper_bound){
+void print_node(struct Node * n){
+    printf("%lu\n", n->by_start->size);
+    if(n->l_child){
+        printf("L-");
+        print_node(n->l_child);
+    }
+    if(n->r_child){
+        printf("R-");
+        print_node(n->r_child);
+    }
+}
+
+/**
+ * Select a point at the center of the middle interval.
+ * This guarantees at least one interval overlaps each node.
+ * If the intervals are sorted, it also favors (but doesn't guarantee) a balanced tree.
+ */
+uint get_center(IPA * intr){
+    // get the central index
+    size_t i = intr->size / 2;
+    // get the center point on this index
+    uint x = (intr->v[i].stop - intr->v[i].start) / 2 + intr->v[i].start;
+    return x;
+}
+
+struct Node * build_tree(IPA * intervals){
     /* initialize returned product */
     struct Node * node = init_node();
 
-    uint center       = (upper_bound - lower_bound) / 2 + lower_bound;
-    uint lower_center = (center      - lower_bound) / 2 + lower_bound;
-    uint upper_center = (upper_bound - center)      / 2 + center;
+    uint center = get_center(intervals);
 
     /* array to store position of center point relative to each interval in intervals
      * lo = 0 -> interval is before the center
@@ -65,13 +88,13 @@ struct Node * build_tree(IPA * intervals, uint lower_bound, uint upper_bound){
     }
 
     if(npos[lo] > 0){
-        node->l_child = build_tree(left, lower_center, upper_bound);   
+        node->l_child = build_tree(left);   
     } else {
         free_ipa(left);
     }
 
     if(npos[hi] > 0){
-        node->r_child = build_tree(right, lower_bound, upper_center);   
+        node->r_child = build_tree(right);   
     } else {
         free_ipa(right);
     }

@@ -9,6 +9,8 @@ typedef unsigned int uint;
 
 Pos point_overlap(unsigned int, Interval);
 
-struct Node * build_tree(IPA*, unsigned int, unsigned int);
+struct Node * build_tree(IPA*);
+
+void print_node(struct Node*);
 
 #endif

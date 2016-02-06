@@ -19,8 +19,9 @@ int main(int argc, char ** argv){
 
     IPA * ipa = load_intervals(argv[1]);
 
-    // TODO unhardcode
-    struct Node * node = build_tree(ipa, 0, 1000);
+    struct Node * node = build_tree(ipa);
+
+    print_node(node);
 
     free_node(node);
 
