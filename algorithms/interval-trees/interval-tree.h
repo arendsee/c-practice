@@ -13,4 +13,6 @@ struct Node * build_tree(IPA*);
 
 void print_node(struct Node*);
 
+uint count_point_overlaps(uint, struct Node *);
+
 #endif

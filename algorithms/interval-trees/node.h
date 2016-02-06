@@ -4,6 +4,7 @@
 #include "ipa.h"
 
 struct Node {
+    unsigned int center;
     IPA * by_start;
     IPA * by_stop;
     struct Node * l_child;

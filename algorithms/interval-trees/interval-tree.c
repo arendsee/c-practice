@@ -36,7 +36,7 @@ struct Node * build_tree(IPA * intervals){
     /* initialize returned product */
     struct Node * node = init_node();
 
-    uint center = get_center(intervals);
+    node->center = get_center(intervals);
 
     /* array to store position of center point relative to each interval in intervals
      * lo = 0 -> interval is before the center
@@ -50,7 +50,7 @@ struct Node * build_tree(IPA * intervals){
 
     /* iterate over intervals classifying and counting each */
     for(int i = 0; i < intervals->size; i++){
-        pos[i] = point_overlap(center, intervals->v[i]);  
+        pos[i] = point_overlap(node->center, intervals->v[i]);  
         npos[pos[i]]++;
     }
 
@@ -108,4 +108,30 @@ struct Node * build_tree(IPA * intervals){
     free_ipa(intervals);
 
     return(node);
+}
+
+// TODO make this a proper tail recursion algorithm (how much does it matter)
+// TODO remove duplication with function pointers, or something
+uint count_point_overlaps(uint point, struct Node * node){
+    uint count = 0;
+    if(point >= node->center) {
+        for(int i = 0; i < node->by_stop->size; i++){
+            if(point <= node->by_stop->v[i].stop){
+                count++;
+            } else {
+                break;
+            }
+        }
+        count += count_point_overlaps(point, node->r_child);
+    } else {
+        for(int i = 0; i < node->by_start->size; i++){
+            if(point >= node->by_start->v[i].start){
+                count++;
+            } else {
+                break;
+            }
+        }
+        count += count_point_overlaps(point, node->l_child);
+    }
+    return count;
 }

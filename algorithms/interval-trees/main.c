@@ -21,9 +21,10 @@ int main(int argc, char ** argv){
 
     struct Node * node = build_tree(ipa);
 
-    print_node(node);
+//    print_node(node);
+
+    count_point_overlaps(100, node);
 
     free_node(node);
-
     exit(EXIT_SUCCESS);
 }

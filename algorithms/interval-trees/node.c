@@ -5,6 +5,7 @@
 
 struct Node * init_node(){
     struct Node * node = (struct Node *)malloc(sizeof(struct Node));
+    node->center   = 0;
     node->by_start = NULL;
     node->by_stop  = NULL;
     node->l_child  = NULL;
