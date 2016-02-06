@@ -7,6 +7,8 @@
 
 IPA * init_ipa(){
     IPA * ipa = (IPA *)malloc(sizeof(IPA));
+    ipa->size = 0;
+    ipa->v = NULL;
     return(ipa);
 }
 

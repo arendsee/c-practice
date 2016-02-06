@@ -19,7 +19,8 @@ int main(int argc, char ** argv){
 
     IPA * ipa = load_intervals(argv[1]);
 
-    struct Node * node = build_tree(ipa, 0, atoi(argv[2]));
+    // TODO unhardcode
+    struct Node * node = build_tree(ipa, 0, 1000);
 
     if(ipa)
         free_ipa(ipa);

@@ -8,7 +8,7 @@
 /** Interval pointer array */
 typedef struct {
     size_t size;
-    Interval ** v;
+    Interval * v;
 } IPA;
 
 IPA * init_ipa();
