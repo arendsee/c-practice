@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define WIDTH 1000
-#define INTERVAL_WIDTH 100
-#define N_INTERVALS 100
+#define WIDTH 99
+#define INTERVAL_WIDTH 10
+#define N_INTERVALS 10
 #define RAND (int)((double) rand() / RAND_MAX * (WIDTH - INTERVAL_WIDTH))
 
 int main(void){

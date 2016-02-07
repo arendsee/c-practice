@@ -2,7 +2,7 @@ CFLAGS=-Wall -g
 
 all:
 	gcc ${CFLAGS} -o gen util/generate-intervals.c
-	./gen > intervals.tab
+	./gen | sort -n > intervals.tab
 	gcc ${CFLAGS} -o tree *.c *.h
 
 clean:

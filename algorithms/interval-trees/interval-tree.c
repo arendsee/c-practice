@@ -1,28 +1,43 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "interval-tree.h"
 #include "interval.h"
 #include "node.h"
 #include "ipa.h"
 
-void print_node(struct Node * n){
-    printf("%lu\n", n->by_start->size);
+/* local print function */
+void print_node_r(struct Node * n, int depth, char pos){
+    printf("%*d   %*s\t%c%d:",
+           depth * 2, depth, 
+           10 - depth * 2, "", pos, n->center);
+    for(int i = 0; i < n->by_start->size; i++){
+        printf("(%u,%u) ",
+               n->by_start->v[i].start,
+               n->by_start->v[i].stop);
+    }
+    printf("\n");
+    depth++;
     if(n->l_child){
-        printf("L-");
-        print_node(n->l_child);
+        print_node_r(n->l_child, depth, 'l');
     }
     if(n->r_child){
-        printf("R-");
-        print_node(n->r_child);
+        print_node_r(n->r_child, depth, 'r');
     }
+}
+
+/* public wrapper for real print function */
+void print_node(struct Node * n){
+    print_node_r(n, 0, 'c');
 }
 
 /**
  * Select a point at the center of the middle interval.
  * This guarantees at least one interval overlaps each node.
- * If the intervals are sorted, it also favors (but doesn't guarantee) a balanced tree.
+ * If the intervals are sorted, it also favors (but doesn't guarantee) a
+ * balanced tree.
  */
 uint get_center(IPA * intr){
     // get the central index
@@ -39,9 +54,9 @@ struct Node * build_tree(IPA * intervals){
     node->center = get_center(intervals);
 
     /* array to store position of center point relative to each interval in intervals
-     * lo = 0 -> interval is before the center
-     * in = 1 -> interval overlaps the center
-     * hi = 2 -> interval is after the center
+     * lo = 0 -> center is lower than interval
+     * in = 1 -> center is inside interval
+     * hi = 2 -> center is higher than interval
      */
     Pos * pos = (Pos *)malloc(intervals->size * sizeof(Pos));
 
@@ -55,8 +70,8 @@ struct Node * build_tree(IPA * intervals){
     }
 
     /* initialise interval arrays */
-    IPA * left     = init_set_ipa(npos[lo]);
-    IPA * right    = init_set_ipa(npos[hi]);
+    IPA * right    = init_set_ipa(npos[lo]);
+    IPA * left     = init_set_ipa(npos[hi]);
     node->by_start = init_set_ipa(npos[in]);
     node->by_stop  = init_set_ipa(npos[in]);
 
@@ -69,7 +84,7 @@ struct Node * build_tree(IPA * intervals){
     for(size_t i = 0; i < intervals->size; i++){
         switch(pos[i]){
             case lo:
-                left->v[lo_idx] = intervals->v[i];
+                right->v[lo_idx] = intervals->v[i];
                 lo_idx++;
                 break;
             case in:
@@ -78,7 +93,7 @@ struct Node * build_tree(IPA * intervals){
                 in_idx++;
                 break;
             case hi:
-                right->v[hi_idx] = intervals->v[i];
+                left->v[hi_idx] = intervals->v[i];
                 hi_idx++;
                 break;
             default:
@@ -88,15 +103,15 @@ struct Node * build_tree(IPA * intervals){
     }
 
     if(npos[lo] > 0){
-        node->l_child = build_tree(left);   
-    } else {
-        free_ipa(left);
-    }
-
-    if(npos[hi] > 0){
         node->r_child = build_tree(right);   
     } else {
         free_ipa(right);
+    }
+
+    if(npos[hi] > 0){
+        node->l_child = build_tree(left);   
+    } else {
+        free_ipa(left);
     }
     
     if(npos[in] > 0){
@@ -110,28 +125,43 @@ struct Node * build_tree(IPA * intervals){
     return(node);
 }
 
-// TODO make this a proper tail recursion algorithm (how much does it matter)
-// TODO remove duplication with function pointers, or something
-uint count_point_overlaps(uint point, struct Node * node){
-    uint count = 0;
+
+
+uint count_point_overlaps(uint point, struct Node * node, uint count){
+    assert(node != NULL);
+    printf("%u %u\n", node->center, point);
     if(point >= node->center) {
-        for(int i = 0; i < node->by_stop->size; i++){
+        assert(node->by_stop != NULL);
+        assert(node->by_stop->v != NULL);
+        assert(node->by_stop->size > 0);
+        for(int i = node->by_stop->size; i != 0 ; i--){
+            printf("a\n");
+            printf("%u\n",node->by_stop->v[i].stop); 
+            printf("b\n");
             if(point <= node->by_stop->v[i].stop){
+                printf("add\n");
                 count++;
             } else {
                 break;
             }
         }
-        count += count_point_overlaps(point, node->r_child);
+        if(node->r_child)
+            return count_point_overlaps(point, node->r_child, count);
     } else {
+        assert(node->by_start != NULL);
+        assert(node->by_start->v != NULL);
+        assert(node->by_start->size > 0);
         for(int i = 0; i < node->by_start->size; i++){
+            break;
             if(point >= node->by_start->v[i].start){
+                printf("add\n");
                 count++;
             } else {
                 break;
             }
         }
-        count += count_point_overlaps(point, node->l_child);
+        if(node->l_child != NULL)
+            return count_point_overlaps(point, node->l_child, count);
     }
     return count;
 }
