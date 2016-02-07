@@ -15,4 +15,6 @@ void print_node(struct Node*, int verbosity);
 
 uint count_point_overlaps(uint, struct Node *, uint);
 
+uint count_interval_overlaps(Interval *, struct Node *, uint);
+
 #endif

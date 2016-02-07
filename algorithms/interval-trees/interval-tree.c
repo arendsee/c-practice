@@ -115,7 +115,6 @@ uint get_center(IPA * intr){
 
 
 uint count_point_overlaps(uint point, struct Node * node, uint count){
-    assert(node != NULL);
     if(point >= node->center) {
         for(int i = node->by_stop->size - 1; i >= 0 ; i--){
             if(point <= node->by_stop->v[i].stop){
@@ -126,7 +125,8 @@ uint count_point_overlaps(uint point, struct Node * node, uint count){
         }
         if(node->r_child)
             return count_point_overlaps(point, node->r_child, count);
-    } else {
+    }
+    else {
         for(int i = 0; i < node->by_start->size; i++){
             if(point >= node->by_start->v[i].start){
                 count++;
@@ -139,6 +139,42 @@ uint count_point_overlaps(uint point, struct Node * node, uint count){
     }
     return count;
 }
+
+
+
+uint count_interval_overlaps(Interval * inv, struct Node * node, uint count){
+    if(node == NULL)
+        return count;
+
+    Pos center_location = point_overlap(node->center, *inv);
+
+    if(center_location == lo){
+        for(int i = node->by_stop->size - 1; i >= 0 ; i--){
+            if(inv->start <= node->by_stop->v[i].stop){
+                count++;
+            } else {
+                break;
+            }
+        }
+        return count_interval_overlaps(inv, node->r_child, count);
+    }
+    else if(center_location == hi){
+        for(int i = 0; i < node->by_start->size; i++){
+            if(inv->stop >= node->by_start->v[i].start){
+                count++;
+            } else {
+                break;
+            }
+        }
+        return count_interval_overlaps(inv, node->l_child, count);
+    }
+    else{
+        count += node->by_start->size;
+        return count_interval_overlaps(inv, node->r_child,
+               count_interval_overlaps(inv, node->l_child, count));
+    }
+}
+
 
 
 /* write tree and center */
