@@ -11,7 +11,7 @@ Pos point_overlap(unsigned int, Interval);
 
 struct Node * build_tree(IPA*);
 
-void print_node(struct Node*);
+void print_node(struct Node*, int verbosity);
 
 uint count_point_overlaps(uint, struct Node *, uint);
 

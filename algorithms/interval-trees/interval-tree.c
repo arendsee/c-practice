@@ -8,44 +8,14 @@
 #include "node.h"
 #include "ipa.h"
 
-/* local print function */
-void print_node_r(struct Node * n, int depth, char pos){
-    printf("%*d   %*s\t%c%d:",
-           depth * 2, depth, 
-           10 - depth * 2, "", pos, n->center);
-    for(int i = 0; i < n->by_start->size; i++){
-        printf("(%u,%u) ",
-               n->by_start->v[i].start,
-               n->by_start->v[i].stop);
-    }
-    printf("\n");
-    depth++;
-    if(n->l_child){
-        print_node_r(n->l_child, depth, 'l');
-    }
-    if(n->r_child){
-        print_node_r(n->r_child, depth, 'r');
-    }
-}
+/* local function prototypes */
+void print_node_verbosity_1(struct Node * n, int depth, char pos);
+void print_node_verbosity_2(struct Node * n, int depth, char pos);
+void print_node_verbosity_3(struct Node * n, int depth, char pos);
+void print_node_r(struct Node * n, int depth, char pos, int verbosity);
+uint get_center(IPA *);
 
-/* public wrapper for real print function */
-void print_node(struct Node * n){
-    print_node_r(n, 0, 'c');
-}
 
-/**
- * Select a point at the center of the middle interval.
- * This guarantees at least one interval overlaps each node.
- * If the intervals are sorted, it also favors (but doesn't guarantee) a
- * balanced tree.
- */
-uint get_center(IPA * intr){
-    // get the central index
-    size_t i = intr->size / 2;
-    // get the center point on this index
-    uint x = (intr->v[i].stop - intr->v[i].start) / 2 + intr->v[i].start;
-    return x;
-}
 
 struct Node * build_tree(IPA * intervals){
     /* initialize returned product */
@@ -53,7 +23,8 @@ struct Node * build_tree(IPA * intervals){
 
     node->center = get_center(intervals);
 
-    /* array to store position of center point relative to each interval in intervals
+    /* array to store position of center point relative to each interval
+     * in intervals
      * lo = 0 -> center is lower than interval
      * in = 1 -> center is inside interval
      * hi = 2 -> center is higher than interval
@@ -127,6 +98,22 @@ struct Node * build_tree(IPA * intervals){
 
 
 
+/**
+ * Select a point at the center of the middle interval.
+ * This guarantees at least one interval overlaps each node.
+ * If the intervals are sorted, it also favors (but doesn't guarantee) a
+ * balanced tree.
+ */
+uint get_center(IPA * intr){
+    // get the central index
+    size_t i = intr->size / 2;
+    // get the center point on this index
+    uint x = (intr->v[i].stop - intr->v[i].start) / 2 + intr->v[i].start;
+    return x;
+}
+
+
+
 uint count_point_overlaps(uint point, struct Node * node, uint count){
     assert(node != NULL);
     printf("%u %u\n", node->center, point);
@@ -164,4 +151,63 @@ uint count_point_overlaps(uint point, struct Node * node, uint count){
             return count_point_overlaps(point, node->l_child, count);
     }
     return count;
+}
+
+
+/* write tree and center */
+void print_node_verbosity_1(struct Node * n, int depth, char pos){
+    printf("%*d - %c%d\n", depth * 2, depth, pos, n->center);
+}
+
+/* write tree, center, and forward sorted */
+void print_node_verbosity_2(struct Node * n, int depth, char pos){
+    printf("%*d   %*s\t%c%d:",
+           depth * 2, depth, 
+           10 - depth * 2, "", pos, n->center);
+    for(int i = 0; i < n->by_start->size; i++){
+        printf("(%u,%u) ",
+               n->by_start->v[i].start,
+               n->by_start->v[i].stop);
+    }
+    printf("\n");
+}
+
+/* write forward and reverse sorted vectors for each node */
+void print_node_verbosity_3(struct Node * n, int depth, char pos){
+    print_node_verbosity_1(n, depth, pos);
+    for(int i = 0; i < n->by_start->size; i++){
+        printf("\t\t(%u,%u) ",
+               n->by_start->v[i].start,
+               n->by_start->v[i].stop);
+        printf("(%u,%u)\n",
+               n->by_stop->v[i].start,
+               n->by_stop->v[i].stop);
+    }
+}
+
+/* local print function */
+void print_node_r(struct Node * n, int depth, char pos, int verbosity){
+    switch(verbosity){
+        case 1:
+            print_node_verbosity_1(n, depth, pos); break;
+        case 2:
+            print_node_verbosity_2(n, depth, pos); break;
+        case 3:
+            print_node_verbosity_3(n, depth, pos); break;
+        default:
+            fprintf(stderr, "verbosity must be 1, 2, or 3\n");
+            exit(EXIT_FAILURE);
+    }
+    depth++;
+    if(n->l_child){
+        print_node_r(n->l_child, depth, 'l', verbosity);
+    }
+    if(n->r_child){
+        print_node_r(n->r_child, depth, 'r', verbosity);
+    }
+}
+
+/* public wrapper for real print function */
+void print_node(struct Node * n, int verbosity){
+    print_node_r(n, 0, 'c', verbosity);
 }
