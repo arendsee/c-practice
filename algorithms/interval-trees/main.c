@@ -18,15 +18,15 @@ int main(int argc, char ** argv){
     }
 
     IPA * ipa = load_intervals(argv[1]);
- //   unsigned int start = atoi(argv[2]);
- //   unsigned int stop = atoi(argv[3]);
+    unsigned int start = atoi(argv[2]);
+//    unsigned int stop = atoi(argv[3]);
 
     struct Node * node = build_tree(ipa);
 
-    print_node(node);
+    print_node(node, 3);
 
-//    unsigned int count = count_point_overlaps(start, node, 0);
-//    printf("%u\n", count);
+    unsigned int count = count_point_overlaps(start, node, 0);
+    printf("%u\n", count);
 
     free_node(node);
     exit(EXIT_SUCCESS);

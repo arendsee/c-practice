@@ -116,17 +116,9 @@ uint get_center(IPA * intr){
 
 uint count_point_overlaps(uint point, struct Node * node, uint count){
     assert(node != NULL);
-    printf("%u %u\n", node->center, point);
     if(point >= node->center) {
-        assert(node->by_stop != NULL);
-        assert(node->by_stop->v != NULL);
-        assert(node->by_stop->size > 0);
-        for(int i = node->by_stop->size; i != 0 ; i--){
-            printf("a\n");
-            printf("%u\n",node->by_stop->v[i].stop); 
-            printf("b\n");
+        for(int i = node->by_stop->size - 1; i >= 0 ; i--){
             if(point <= node->by_stop->v[i].stop){
-                printf("add\n");
                 count++;
             } else {
                 break;
@@ -135,19 +127,14 @@ uint count_point_overlaps(uint point, struct Node * node, uint count){
         if(node->r_child)
             return count_point_overlaps(point, node->r_child, count);
     } else {
-        assert(node->by_start != NULL);
-        assert(node->by_start->v != NULL);
-        assert(node->by_start->size > 0);
         for(int i = 0; i < node->by_start->size; i++){
-            break;
             if(point >= node->by_start->v[i].start){
-                printf("add\n");
                 count++;
             } else {
                 break;
             }
         }
-        if(node->l_child != NULL)
+        if(node->l_child)
             return count_point_overlaps(point, node->l_child, count);
     }
     return count;
@@ -159,7 +146,7 @@ void print_node_verbosity_1(struct Node * n, int depth, char pos){
     printf("%*d - %c%d\n", depth * 2, depth, pos, n->center);
 }
 
-/* write tree, center, and forward sorted */
+/* write tree, center, and start-sorted */
 void print_node_verbosity_2(struct Node * n, int depth, char pos){
     printf("%*d   %*s\t%c%d:",
            depth * 2, depth, 
@@ -172,7 +159,7 @@ void print_node_verbosity_2(struct Node * n, int depth, char pos){
     printf("\n");
 }
 
-/* write forward and reverse sorted vectors for each node */
+/* write start- and stop-sorted vectors for each node */
 void print_node_verbosity_3(struct Node * n, int depth, char pos){
     print_node_verbosity_1(n, depth, pos);
     for(int i = 0; i < n->by_start->size; i++){
