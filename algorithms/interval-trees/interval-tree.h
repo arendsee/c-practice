@@ -17,8 +17,8 @@ uint count_point_overlaps(uint, struct Node *);
 
 uint count_interval_overlaps(Interval *, struct Node *);
 
-IA point_overlaps(uint, struct Node *);
+IA * get_point_overlaps(uint, struct Node *);
 
-IA interval_overlaps(uint, struct Node *);
+IA * get_interval_overlaps(Interval *, struct Node *);
 
 #endif

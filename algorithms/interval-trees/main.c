@@ -27,9 +27,12 @@ int main(int argc, char ** argv){
     print_node(node, 3);
 
 //    unsigned int count = count_point_overlaps(start, node, 0);
+//    printf("%u\n", count);
     Interval inv = {.start=start, .stop=stop};
-    unsigned int count = count_interval_overlaps(&inv, node);
-    printf("%u\n", count);
+    IA * out = get_interval_overlaps(&inv, node);
+    for(int i = 0; i < out->size; i++){
+        printf("%u\t%u\n", out->v[i].start, out->v[i].stop);
+    }
 
     free_node(node);
     exit(EXIT_SUCCESS);

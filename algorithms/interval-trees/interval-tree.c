@@ -7,6 +7,7 @@
 #include "interval.h"
 #include "node.h"
 #include "ia.h"
+#include "iv.h"
 
 /* local function prototypes */
 void print_node_verbosity_1(struct Node * n, int depth, char pos);
@@ -16,6 +17,8 @@ void print_node_r(struct Node * n, int depth, char pos, int verbosity);
 uint get_center(IA *);
 uint count_interval_overlaps_r(Interval *, struct Node *, uint);
 uint count_point_overlaps_r(uint, struct Node *, uint);
+IV * get_interval_overlaps_r(Interval *, struct Node *, IV *);
+IV * get_point_overlaps_r(uint, struct Node *, IV *);
 
 
 
@@ -183,6 +186,91 @@ uint count_interval_overlaps(Interval * inv, struct Node * node){
 uint count_point_overlaps(uint point, struct Node * node){
     return count_point_overlaps_r(point, node, 0);
 }
+
+
+
+IV * get_point_overlaps_r(uint point, struct Node * node, IV * results){
+    if(point >= node->center) {
+        for(int i = node->by_stop->size - 1; i >= 0 ; i--){
+            if(point <= node->by_stop->v[i].stop){
+                iv_add(results, node->by_stop->v[i]);
+            } else {
+                break;
+            }
+        }
+        if(node->r_child)
+            return get_point_overlaps_r(point, node->r_child, results);
+    }
+    else {
+        for(int i = 0; i < node->by_start->size; i++){
+            if(point >= node->by_start->v[i].start){
+                iv_add(results, node->by_start->v[i]);
+            } else {
+                break;
+            }
+        }
+        if(node->l_child)
+            return get_point_overlaps_r(point, node->l_child, results);
+    }
+    return results;
+}
+
+IV * get_interval_overlaps_r(Interval * inv, struct Node * node, IV * results){
+    if(node == NULL)
+        return results;
+
+    Pos center_location = point_overlap(node->center, *inv);
+
+    if(center_location == lo){
+        for(int i = node->by_stop->size - 1; i >= 0 ; i--){
+            if(inv->start <= node->by_stop->v[i].stop){
+                iv_add(results, node->by_stop->v[i]);
+            } else {
+                break;
+            }
+        }
+        return get_interval_overlaps_r(inv, node->r_child, results);
+    }
+    else if(center_location == hi){
+        for(int i = 0; i < node->by_start->size; i++){
+            if(inv->stop >= node->by_start->v[i].start){
+                iv_add(results, node->by_start->v[i]);
+            } else {
+                break;
+            }
+        }
+        return get_interval_overlaps_r(inv, node->l_child, results);
+    }
+    else{
+        // TODO: This would be more efficient if I had an explicit function for
+        // splicing an IV and IA
+        //
+        for(int i = 0; i < node->by_start->size; i++){
+            iv_add(results, node->by_start->v[i]);
+        }
+        return get_interval_overlaps_r(inv, node->r_child,
+               get_interval_overlaps_r(inv, node->l_child, results));
+    }
+}
+
+IA * get_point_overlaps(uint point, struct Node * node){
+    IV * results = get_point_overlaps_r(point, node, iv_init(8));
+    IA * ia = init_ia();
+    ia->size = results->size;
+    ia->v = results->data;
+    return ia;
+}
+
+IA * get_interval_overlaps(Interval * inv, struct Node * node){
+    IV * results = get_interval_overlaps_r(inv, node, iv_init(8));
+    // NOTE this does not free the excess memory, it only hides it
+    // I could call realloc, or I could just pass back the IV
+    IA * ia = init_ia();
+    ia->size = results->size;
+    ia->v = results->data;
+    return ia;
+}
+
 
 
 /* write tree and center */
