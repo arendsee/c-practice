@@ -2,23 +2,17 @@
 #define __INTERVAL_TREE_H__
 
 #include "ia.h"
-#include "interval.h"
-#include "node.h"
 
-typedef unsigned int uint;
+struct IntervalTree {
+    unsigned int center;
+    IA * by_start;
+    IA * by_stop;
+    struct IntervalTree * l_child;
+    struct IntervalTree * r_child;
+};
 
-Pos point_overlap(unsigned int, Interval);
+struct IntervalTree * init_interval_tree();
 
-struct Node * build_tree(IA*);
-
-void print_node(struct Node*, int verbosity);
-
-uint count_point_overlaps(uint, struct Node *);
-
-uint count_interval_overlaps(Interval *, struct Node *);
-
-IA * get_point_overlaps(uint, struct Node *);
-
-IA * get_interval_overlaps(Interval *, struct Node *);
+void free_interval_tree(struct IntervalTree *);
 
 #endif
