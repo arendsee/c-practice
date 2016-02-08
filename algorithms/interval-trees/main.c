@@ -8,7 +8,7 @@
 
 #include "io.h"
 #include "node.h"
-#include "ipa.h"
+#include "ia.h"
 #include "interval.h"
 #include "interval-tree.h"
 
@@ -18,11 +18,11 @@ int main(int argc, char ** argv){
         exit(EXIT_FAILURE);
     }
 
-    IPA * ipa = load_intervals(argv[1]);
+    IA * ia = load_intervals(argv[1]);
     unsigned int start = atoi(argv[2]);
     unsigned int stop = atoi(argv[3]);
 
-    struct Node * node = build_tree(ipa);
+    struct Node * node = build_tree(ia);
 
     print_node(node, 3);
 

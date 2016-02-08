@@ -6,21 +6,21 @@
 #include "interval-tree.h"
 #include "interval.h"
 #include "node.h"
-#include "ipa.h"
+#include "ia.h"
 
 /* local function prototypes */
 void print_node_verbosity_1(struct Node * n, int depth, char pos);
 void print_node_verbosity_2(struct Node * n, int depth, char pos);
 void print_node_verbosity_3(struct Node * n, int depth, char pos);
 void print_node_r(struct Node * n, int depth, char pos, int verbosity);
-uint get_center(IPA *);
+uint get_center(IA *);
 uint count_interval_overlaps_r(Interval *, struct Node *, uint);
 uint count_point_overlaps_r(uint, struct Node *, uint);
 
 
 
 
-struct Node * build_tree(IPA * intervals){
+struct Node * build_tree(IA * intervals){
     /* initialize returned product */
     struct Node * node = init_node();
 
@@ -44,10 +44,10 @@ struct Node * build_tree(IPA * intervals){
     }
 
     /* initialise interval arrays */
-    IPA * right    = init_set_ipa(npos[lo]);
-    IPA * left     = init_set_ipa(npos[hi]);
-    node->by_start = init_set_ipa(npos[in]);
-    node->by_stop  = init_set_ipa(npos[in]);
+    IA * right    = init_set_ia(npos[lo]);
+    IA * left     = init_set_ia(npos[hi]);
+    node->by_start = init_set_ia(npos[in]);
+    node->by_stop  = init_set_ia(npos[in]);
 
     /* track index of interval to add */
     size_t lo_idx = 0;
@@ -79,13 +79,13 @@ struct Node * build_tree(IPA * intervals){
     if(npos[lo] > 0){
         node->r_child = build_tree(right);   
     } else {
-        free_ipa(right);
+        free_ia(right);
     }
 
     if(npos[hi] > 0){
         node->l_child = build_tree(left);   
     } else {
-        free_ipa(left);
+        free_ia(left);
     }
     
     if(npos[in] > 0){
@@ -94,7 +94,7 @@ struct Node * build_tree(IPA * intervals){
     }
 
     free(pos);
-    free_ipa(intervals);
+    free_ia(intervals);
 
     return(node);
 }
@@ -107,7 +107,7 @@ struct Node * build_tree(IPA * intervals){
  * If the intervals are sorted, it also favors (but doesn't guarantee) a
  * balanced tree.
  */
-uint get_center(IPA * intr){
+uint get_center(IA * intr){
     // get the central index
     size_t i = intr->size / 2;
     // get the center point on this index

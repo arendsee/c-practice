@@ -1,22 +1,22 @@
-#ifndef __IPA_H__
-#define __IPA_H__
+#ifndef __IA_H__
+#define __IA_H__
 
 #include <stdlib.h>
 
 #include "interval.h"
 
-/** Interval pointer array */
+/** Interval array */
 typedef struct {
     size_t size;
     Interval * v;
-} IPA;
+} IA;
 
 /* initialize to {.size=0, .v=NULL} */
-IPA * init_ipa();
+IA * init_ia();
 
 /* initialize to a size, allocate memory to v */
-IPA * init_set_ipa(size_t size);
+IA * init_set_ia(size_t size);
 
-void free_ipa(IPA * ipa);
+void free_ia(IA * ia);
 
 #endif

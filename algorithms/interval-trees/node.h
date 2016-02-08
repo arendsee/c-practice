@@ -1,12 +1,12 @@
 #ifndef __NODE_H__
 #define __NODE_H__
 
-#include "ipa.h"
+#include "ia.h"
 
 struct Node {
     unsigned int center;
-    IPA * by_start;
-    IPA * by_stop;
+    IA * by_start;
+    IA * by_stop;
     struct Node * l_child;
     struct Node * r_child;
 };
