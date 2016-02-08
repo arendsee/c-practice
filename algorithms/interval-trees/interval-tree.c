@@ -14,6 +14,9 @@ void print_node_verbosity_2(struct Node * n, int depth, char pos);
 void print_node_verbosity_3(struct Node * n, int depth, char pos);
 void print_node_r(struct Node * n, int depth, char pos, int verbosity);
 uint get_center(IPA *);
+uint count_interval_overlaps_r(Interval *, struct Node *, uint);
+uint count_point_overlaps_r(uint, struct Node *, uint);
+
 
 
 
@@ -114,7 +117,7 @@ uint get_center(IPA * intr){
 
 
 
-uint count_point_overlaps(uint point, struct Node * node, uint count){
+uint count_point_overlaps_r(uint point, struct Node * node, uint count){
     if(point >= node->center) {
         for(int i = node->by_stop->size - 1; i >= 0 ; i--){
             if(point <= node->by_stop->v[i].stop){
@@ -124,7 +127,7 @@ uint count_point_overlaps(uint point, struct Node * node, uint count){
             }
         }
         if(node->r_child)
-            return count_point_overlaps(point, node->r_child, count);
+            return count_point_overlaps_r(point, node->r_child, count);
     }
     else {
         for(int i = 0; i < node->by_start->size; i++){
@@ -135,14 +138,12 @@ uint count_point_overlaps(uint point, struct Node * node, uint count){
             }
         }
         if(node->l_child)
-            return count_point_overlaps(point, node->l_child, count);
+            return count_point_overlaps_r(point, node->l_child, count);
     }
     return count;
 }
 
-
-
-uint count_interval_overlaps(Interval * inv, struct Node * node, uint count){
+uint count_interval_overlaps_r(Interval * inv, struct Node * node, uint count){
     if(node == NULL)
         return count;
 
@@ -156,7 +157,7 @@ uint count_interval_overlaps(Interval * inv, struct Node * node, uint count){
                 break;
             }
         }
-        return count_interval_overlaps(inv, node->r_child, count);
+        return count_interval_overlaps_r(inv, node->r_child, count);
     }
     else if(center_location == hi){
         for(int i = 0; i < node->by_start->size; i++){
@@ -166,15 +167,22 @@ uint count_interval_overlaps(Interval * inv, struct Node * node, uint count){
                 break;
             }
         }
-        return count_interval_overlaps(inv, node->l_child, count);
+        return count_interval_overlaps_r(inv, node->l_child, count);
     }
     else{
         count += node->by_start->size;
-        return count_interval_overlaps(inv, node->r_child,
-               count_interval_overlaps(inv, node->l_child, count));
+        return count_interval_overlaps_r(inv, node->r_child,
+               count_interval_overlaps_r(inv, node->l_child, count));
     }
 }
 
+uint count_interval_overlaps(Interval * inv, struct Node * node){
+    return count_interval_overlaps_r(inv, node, 0);
+}
+
+uint count_point_overlaps(uint point, struct Node * node){
+    return count_point_overlaps_r(point, node, 0);
+}
 
 
 /* write tree and center */
