@@ -14,6 +14,7 @@ void leak_all(){
     printf("%d %d\n", sizeof(data), strlen(data[100]));
 }
 
+
 void free_each(){
     char ** data = (char**)calloc(SIZE, sizeof(char*));
     for(int i = 0; i < SIZE; i++){
