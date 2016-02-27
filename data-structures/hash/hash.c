@@ -1,30 +1,58 @@
 #include <stdio.h>
 #include <string.h>
 
-void print_bitwise_operators(char a, char b){
-    printf("%x AND %x = %x\n", a, b, a & b);
-    printf("%x OR  %x = %x\n", a, b, a | b);
-    printf("%x XOR %x = %x\n", a, b, a ^ b);
-    printf("%x << 1  = %x\n", a, a << 1);
-    printf("1 << 1  = %x\n", 1 << 1);
-    printf("2 << 1  = %x\n", 2 << 1);
-    printf("4 << 1  = %x\n", 4 << 1);
-    printf("8 << 1  = %x\n", 8 << 1);
-}
+#define byte unsigned char
 
-void print_binary(char * data, size_t n){
-    for(int i = 0; i < n; i++){
-        for(char offset = 1; offset != 128; offset = offset << 1){
-            printf("%d", data[i] & offset ? 1 : 0);
+// Rotate one byte left
+#define rotl(x) (x) << 1 ^ (x) >> 7
+// Rotate one byte right
+#define rotr(x) (x) >> 1 ^ (x) << 7
+
+// Rotate k places on a block n bit long
+#define grotl(x,n,k) (x) << ((k) % (n)) ^ (x) >> ((n) - ((k) % (n)))
+#define grotr(x,n,k) (x) >> ((k) % (n)) ^ (x) << ((n) - ((k) % (n)))
+
+void print_binary(void * data, size_t size){
+    byte * v = (byte *) data;
+    for(int i = 0; i < size; i++){
+        for(byte mask = 128; mask != 0; mask >>= 1){
+            printf("%d", v[i] & mask ? 1 : 0);
         }
         printf(" ");
     }
     printf("\n");
 }
 
+byte xor_all(void * data, size_t size, byte hash){
+    byte * v = (byte *) data;
+    hash = 0;
+    for(int i = 0; i < size; i++){
+        hash ^= v[i];
+    }
+    return(hash); 
+}
+
 int main(int argc, char * argv[]){
-    char * a = "A string to hash";
-    print_binary(a, strlen(a));
-    print_bitwise_operators(60, 61);
+    char * a = "xor this line";
+    print_binary(a, strlen(a) + 1);
+    byte hash = 0;
+    hash = xor_all(a, strlen(a), hash);
+    print_binary(&hash, 1);
+    byte b = 24;
+    for(int i = 0; i < 8; i++){
+        print_binary(&b, 1);
+        b = rotl(b);
+    }
+    for(int i = 0; i < 8; i++){
+        print_binary(&b, 1);
+        b = rotr(b);
+    }
+    printf("\n");
+    b = 24;
+    for(int i = 0; i < 64; i++){
+        print_binary(&b, 1);
+        printf("%d\n", i % 8);
+        b = grotr(b, 8, i);
+    }
     return 0;
 }
