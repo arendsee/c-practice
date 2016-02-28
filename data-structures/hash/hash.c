@@ -2,23 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SALT 18747
-
-#define byte unsigned char
-#define uint unsigned int
-#define ushort unsigned short
-
-// Rotate one byte left
-#define byte_rotl(x) (x) << 1 ^ (x) >> 7
-// Rotate one byte right
-#define byte_rotr(x) (x) >> 1 ^ (x) << 7
-
-#define rotl(x,n,k) (x) << (k) ^ (x) >> ((n) - (k))
-#define rotr(x,n,k) (x) >> (k) ^ (x) << ((n) - (k))
-
-// Rotate k places on a block n bit long
-#define grotl(x,n,k) (x) << ((k) % (n)) ^ (x) >> ((n) - ((k) % (n)))
-#define grotr(x,n,k) (x) >> ((k) % (n)) ^ (x) << ((n) - ((k) % (n)))
+#include "hash.h"
 
 ushort swap(ushort x, size_t a, size_t b){
     size_t size = sizeof(ushort);
