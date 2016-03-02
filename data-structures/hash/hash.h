@@ -23,30 +23,63 @@
 
 typedef struct {
     void * data;
+    size_t size;
+} datum;
+
+typedef struct {
+    datum data;
+    datum key;
     struct bin * next;
 } bin;
 
 typedef struct {
     size_t size;
+    uint conflicts; // Number of conflicting key hashes
     bin * table[65536];
 } hashmap;
 
-/* Add an entry to a hashmap */
-void add(void * data, hashmap map);
-void get(void * key, hashmap map);
-void del(void * key, hashmap map);
+/* Add an entry to a hashmap
+ *
+ * Get the hashmap table index via the hash function and the given key
+ *
+ * Create a new bin structure from the key and data.
+ *
+ * Add the new bin the to beginning of the list. If there was already a bin at
+ * this index, increment the conflict count. 
+ *
+ */
+void add(datum key, datum data, hashmap map);
+
+void get(datum key, hashmap map);
+
+void del(datum key, hashmap map);
+
 void dump(hashmap map);
 
 /* Swap two bits in an unsigned short */
 ushort swap(ushort x, size_t a, size_t b);
 
 /* Print data in binary, bytes separated by spaces */
-void print_binary(void * data, size_t size);
+void print_binary(datum);
 
 /* XOR all byte together and return */
-byte xor_all(void * data, size_t size, byte hash);
+byte xor_all(datum, byte hash);
 
-/* Hash a key into an unsigned short index for the hash table */
-ushort hash(void * key, size_t size);
+/* Make a 16 bit hash of a key
+ *
+ * The hash is initialized to a salt value. This reduces the danger of an
+ * attacker feeding many conflicting values into input, which would slow down
+ * the loopups. I suppose this isn't a terribly critical problem, but the cost
+ * of implementing it is trivial.
+ *
+ * Next each consecutive 16-bit block in the key is XORed against the hash with
+ * the two bytes reversed.
+ *
+ * Finally, each 16-bit block i is XORed against block (n-i-1).
+ *
+ * This is probably an excessively heavy hash function for a hashmap.
+ *
+ */
+ushort hash(datum key);
 
 #endif

@@ -4,6 +4,14 @@
 
 #include "hash.h"
 
+void add(datum key, datum data, hashmap map){}
+
+void get(datum key, hashmap map){}
+
+void del(datum key, hashmap map){}
+
+void dump(hashmap map){}
+
 ushort swap(ushort x, size_t a, size_t b){
     size_t size = sizeof(ushort);
     if(a < b){
@@ -21,10 +29,9 @@ ushort swap(ushort x, size_t a, size_t b){
            (x & (1 << b)) << (a - b) | x;
 }
 
-/* Print n bytes starting from given pointer in binary */
-void print_binary(void * data, size_t size){
-    byte * v = (byte *) data;
-    for(int i = size - 1; i > -1; i--){
+void print_binary(datum d){
+    byte * v = (byte *) d.data;
+    for(int i = d.size - 1; i > -1; i--){
         for(byte mask = 128; mask != 0; mask >>= 1){
             printf("%d", v[i] & mask ? 1 : 0);
         }
@@ -33,34 +40,19 @@ void print_binary(void * data, size_t size){
     printf("\n");
 }
 
-/* Perform byte-by-byte xor */
-byte xor_all(void * data, size_t size, byte hash){
-    byte * v = (byte *) data;
+byte xor_all(datum d, byte hash){
+    byte * v = (byte *) d.data;
     hash = 0;
-    for(int i = 0; i < size; i++){
+    for(int i = 0; i < d.size; i++){
         hash ^= v[i];
     }
     return(hash); 
 }
 
-/* Make a 16 bit hash of a key
- *
- * The hash is initialized to a salt value. This reduces the danger of an
- * attacker feeding many conflicting values into input, which would slow down
- * the loopups. I suppose this isn't a terribly critical problem, but the cost
- * of implementing it is trivial.
- *
- * Next each consecutive 16-bit block in the key is XORed against the hash with
- * the two bytes reversed.
- *
- * Finally, each 16-bit block i is XORed against block (n-i-1).
- *
- * This is probably an excessively heavy hash function for a hashmap.
- *
- */
-ushort hash(void * key, size_t size){
-    ushort * k = (ushort *) key;
+ushort hash(datum key){
+    ushort * k = (ushort *) key.data;
     ushort hash;
+    size_t size = key.size;
     size_t pad_length = size % sizeof(ushort);
     int give_me_freedom = 0;
     // If the input is not a multiple of the hash block size pad with 0s
@@ -84,15 +76,18 @@ ushort hash(void * key, size_t size){
 }
 
 int main(int argc, char * argv[]){
-    int r;
+    datum r;
+    int val;
     int n = 10;
     if(argc > 1)
         srand(atoi(argv[1]));
     if(argc > 2)
         n = atoi(argv[2]);
+    r.size = sizeof(int);
     for(int i = 0; i < n; i++){
-        r = rand();
-        printf("%d\n", hash(&r, sizeof(int)));
+        val = rand();
+        r.data = &val;
+        printf("%d\n", hash(r));
     }
     return 0;
 }
