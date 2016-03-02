@@ -21,6 +21,7 @@ ushort swap(ushort x, size_t a, size_t b){
            (x & (1 << b)) << (a - b) | x;
 }
 
+/* Print n bytes starting from given pointer in binary */
 void print_binary(void * data, size_t size){
     byte * v = (byte *) data;
     for(int i = size - 1; i > -1; i--){
@@ -32,6 +33,7 @@ void print_binary(void * data, size_t size){
     printf("\n");
 }
 
+/* Perform byte-by-byte xor */
 byte xor_all(void * data, size_t size, byte hash){
     byte * v = (byte *) data;
     hash = 0;
@@ -41,9 +43,24 @@ byte xor_all(void * data, size_t size, byte hash){
     return(hash); 
 }
 
+/* Make a 16 bit hash of a key
+ *
+ * The hash is initialized to a salt value. This reduces the danger of an
+ * attacker feeding many conflicting values into input, which would slow down
+ * the loopups. I suppose this isn't a terribly critical problem, but the cost
+ * of implementing it is trivial.
+ *
+ * Next each consecutive 16-bit block in the key is XORed against the hash with
+ * the two bytes reversed.
+ *
+ * Finally, each 16-bit block i is XORed against block (n-i-1).
+ *
+ * This is probably an excessively heavy hash function for a hashmap.
+ *
+ */
 ushort hash(void * key, size_t size){
     ushort * k = (ushort *) key;
-    ushort hash = SALT;
+    ushort hash;
     size_t pad_length = size % sizeof(ushort);
     int give_me_freedom = 0;
     // If the input is not a multiple of the hash block size pad with 0s
@@ -55,6 +72,7 @@ ushort hash(void * key, size_t size){
         }
         give_me_freedom++;
     }
+    hash = SALT;
     for(int i = 0; i < size; i++){
         hash ^= k[i] << sizeof(byte);
         hash ^= k[i] >> sizeof(byte);
