@@ -4,35 +4,35 @@
 
 #include "hash.h"
 
-void add(datum * key, datum * data, hashmap * map){
+void add(struct datum * key, struct datum * data, struct hashmap * map){
     size_t index = hash(key); 
     if(index < map->size){
-        bin * b = init_bin(); 
+        struct bin * b = init_bin(); 
         b->data = data;
         b->key = key;
         b->next = map->table[index];
         map->table[index] = b;
     } else {
-        fprintf(stderr, "Hash key (%d) is out of bounds\n", index);
+        fprintf(stderr, "Hash key (%lu) is out of bounds\n", index);
         exit(EXIT_FAILURE);
     }
 }
 
-void get(datum * key, hashmap * map){}
+void get(struct datum * key, struct hashmap * map){}
 
-void del(datum * key, hashmap * map){}
+void del(struct datum * key, struct hashmap * map){}
 
-void dump(hashmap * map){}
+void dump(struct hashmap * map){}
 
-bin * init_bin(){
-    bin * b = (bin *)malloc(sizeof(bin));
+struct bin * init_bin(){
+    struct bin * b = (struct bin *)malloc(sizeof(struct bin));
     b->data = 0;
     b->key  = 0;
     b->next = 0;
     return(b);
 }
 
-void free_bin(bin * b){
+void free_bin(struct bin * b){
     if(b){
         if(b->next)        
             free_bin(b->next);
@@ -40,16 +40,16 @@ void free_bin(bin * b){
     }
 }
 
-hashmap * init_hash(){
-    hashmap * map = (hashmap *)malloc(1 * sizeof(hashmap));
+struct hashmap * init_hash(){
+    struct hashmap * map = (struct hashmap *)malloc(sizeof(struct hashmap));
     map->size = HASH_SIZE;
     map->conflicts = 0;
-    map->table = (bin **)malloc(map->size * sizeof(bin *));
+    map->table = (struct bin **)malloc(map->size * sizeof(struct bin *));
     memset(map->table, 0, map->size);
     return map;
 }
 
-void free_hash(hashmap * map){
+void free_hash(struct hashmap * map){
     if(map){
         if(map->table){
             for(int i = 0; i < map->size; i++){
@@ -79,7 +79,7 @@ ushort swap(ushort x, size_t a, size_t b){
            (x & (1 << b)) << (a - b) | x;
 }
 
-void print_binary(datum * d){
+void print_binary(struct datum * d){
     byte * v = (byte *) d->data;
     for(int i = d->size - 1; i > -1; i--){
         for(byte mask = 128; mask != 0; mask >>= 1){
@@ -90,7 +90,7 @@ void print_binary(datum * d){
     printf("\n");
 }
 
-byte xor_all(datum * d, byte hash){
+byte xor_all(struct datum * d, byte hash){
     byte * v = (byte *) d->data;
     hash = 0;
     for(int i = 0; i < d->size; i++){
@@ -99,7 +99,7 @@ byte xor_all(datum * d, byte hash){
     return(hash); 
 }
 
-ushort hash(datum * key){
+ushort hash(struct datum * key){
     ushort * k = (ushort *) key->data;
     ushort hash;
     size_t size = key->size;
@@ -126,9 +126,9 @@ ushort hash(datum * key){
 }
 
 int main(int argc, char * argv[]){
-    datum key;
-    datum val;
-    hashmap * map = init_hash();
+    struct datum key;
+    struct datum val;
+    struct hashmap * map = init_hash();
     int k;
     int n = 10;
     if(argc > 1)

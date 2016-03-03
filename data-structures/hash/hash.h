@@ -22,30 +22,30 @@
 #define grotl(x,n,k) (x) << ((k) % (n)) ^ (x) >> ((n) - ((k) % (n)))
 #define grotr(x,n,k) (x) >> ((k) % (n)) ^ (x) << ((n) - ((k) % (n)))
 
-typedef struct {
+struct datum {
     void * data;
     size_t size;
-} datum;
+};
 
-typedef struct {
-    datum * data;
-    datum * key;
+struct bin {
+    struct datum * data;
+    struct datum * key;
     struct bin * next;
-} bin;
+};
 
-typedef struct {
+struct hashmap {
     size_t size;
     uint conflicts; // Number of conflicting key hashes
-    bin * table;
-} hashmap;
+    struct bin ** table;
+};
 
-void free_bin(bin *);
+void free_bin(struct bin *);
 
-bin * init_bin();
+struct bin * init_bin();
 
-void free_hash(hashmap * map);
+void free_hash(struct hashmap * map);
 
-hashmap * init_hash();
+struct hashmap * init_hash();
 
 /* Add an entry to a hashmap
  *
@@ -57,22 +57,22 @@ hashmap * init_hash();
  * this index, increment the conflict count. 
  *
  */
-void add(datum * key, datum * data, hashmap * map);
+void add(struct datum * key, struct datum * data, struct hashmap * map);
 
-void get(datum * key, hashmap * map);
+void get(struct datum * key, struct hashmap * map);
 
-void del(datum * key, hashmap * map);
+void del(struct datum * key, struct hashmap * map);
 
-void dump(hashmap * map);
+void dump(struct hashmap * map);
 
 /* Swap two bits in an unsigned short */
 ushort swap(ushort x, size_t a, size_t b);
 
 /* Print data in binary, bytes separated by spaces */
-void print_binary(datum *);
+void print_binary(struct datum *);
 
 /* XOR all byte together and return */
-byte xor_all(datum *, byte hash);
+byte xor_all(struct datum *, byte hash);
 
 /* Make a 16 bit hash of a key
  *
@@ -89,6 +89,6 @@ byte xor_all(datum *, byte hash);
  * This is probably an excessively heavy hash function for a hashmap.
  *
  */
-ushort hash(datum * key);
+ushort hash(struct datum * key);
 
 #endif
