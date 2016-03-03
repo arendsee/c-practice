@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #define SALT 18747
+#define HASH_SIZE 65536
 
 #define byte unsigned char
 #define uint unsigned int
@@ -27,16 +28,24 @@ typedef struct {
 } datum;
 
 typedef struct {
-    datum data;
-    datum key;
+    datum * data;
+    datum * key;
     struct bin * next;
 } bin;
 
 typedef struct {
     size_t size;
     uint conflicts; // Number of conflicting key hashes
-    bin * table[65536];
+    bin * table;
 } hashmap;
+
+void free_bin(bin *);
+
+bin * init_bin();
+
+void free_hash(hashmap * map);
+
+hashmap * init_hash();
 
 /* Add an entry to a hashmap
  *
@@ -48,22 +57,22 @@ typedef struct {
  * this index, increment the conflict count. 
  *
  */
-void add(datum key, datum data, hashmap map);
+void add(datum * key, datum * data, hashmap * map);
 
-void get(datum key, hashmap map);
+void get(datum * key, hashmap * map);
 
-void del(datum key, hashmap map);
+void del(datum * key, hashmap * map);
 
-void dump(hashmap map);
+void dump(hashmap * map);
 
 /* Swap two bits in an unsigned short */
 ushort swap(ushort x, size_t a, size_t b);
 
 /* Print data in binary, bytes separated by spaces */
-void print_binary(datum);
+void print_binary(datum *);
 
 /* XOR all byte together and return */
-byte xor_all(datum, byte hash);
+byte xor_all(datum *, byte hash);
 
 /* Make a 16 bit hash of a key
  *
@@ -80,6 +89,6 @@ byte xor_all(datum, byte hash);
  * This is probably an excessively heavy hash function for a hashmap.
  *
  */
-ushort hash(datum key);
+ushort hash(datum * key);
 
 #endif

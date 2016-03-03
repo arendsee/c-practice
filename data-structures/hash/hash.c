@@ -4,13 +4,63 @@
 
 #include "hash.h"
 
-void add(datum key, datum data, hashmap map){}
+void add(datum * key, datum * data, hashmap * map){
+    size_t index = hash(key); 
+    if(index < map->size){
+        bin * b = init_bin(); 
+        b->data = data;
+        b->key = key;
+        b->next = map->table[index];
+        map->table[index] = b;
+    } else {
+        fprintf(stderr, "Hash key (%d) is out of bounds\n", index);
+        exit(EXIT_FAILURE);
+    }
+}
 
-void get(datum key, hashmap map){}
+void get(datum * key, hashmap * map){}
 
-void del(datum key, hashmap map){}
+void del(datum * key, hashmap * map){}
 
-void dump(hashmap map){}
+void dump(hashmap * map){}
+
+bin * init_bin(){
+    bin * b = (bin *)malloc(sizeof(bin));
+    b->data = 0;
+    b->key  = 0;
+    b->next = 0;
+    return(b);
+}
+
+void free_bin(bin * b){
+    if(b){
+        if(b->next)        
+            free_bin(b->next);
+        free(b);
+    }
+}
+
+hashmap * init_hash(){
+    hashmap * map = (hashmap *)malloc(1 * sizeof(hashmap));
+    map->size = HASH_SIZE;
+    map->conflicts = 0;
+    map->table = (bin **)malloc(map->size * sizeof(bin *));
+    memset(map->table, 0, map->size);
+    return map;
+}
+
+void free_hash(hashmap * map){
+    if(map){
+        if(map->table){
+            for(int i = 0; i < map->size; i++){
+                if(map->table[i])
+                    free_bin(map->table[i]);
+            }
+            free(map->table);
+        }
+        free(map);
+    }
+}
 
 ushort swap(ushort x, size_t a, size_t b){
     size_t size = sizeof(ushort);
@@ -29,9 +79,9 @@ ushort swap(ushort x, size_t a, size_t b){
            (x & (1 << b)) << (a - b) | x;
 }
 
-void print_binary(datum d){
-    byte * v = (byte *) d.data;
-    for(int i = d.size - 1; i > -1; i--){
+void print_binary(datum * d){
+    byte * v = (byte *) d->data;
+    for(int i = d->size - 1; i > -1; i--){
         for(byte mask = 128; mask != 0; mask >>= 1){
             printf("%d", v[i] & mask ? 1 : 0);
         }
@@ -40,19 +90,19 @@ void print_binary(datum d){
     printf("\n");
 }
 
-byte xor_all(datum d, byte hash){
-    byte * v = (byte *) d.data;
+byte xor_all(datum * d, byte hash){
+    byte * v = (byte *) d->data;
     hash = 0;
-    for(int i = 0; i < d.size; i++){
+    for(int i = 0; i < d->size; i++){
         hash ^= v[i];
     }
     return(hash); 
 }
 
-ushort hash(datum key){
-    ushort * k = (ushort *) key.data;
+ushort hash(datum * key){
+    ushort * k = (ushort *) key->data;
     ushort hash;
-    size_t size = key.size;
+    size_t size = key->size;
     size_t pad_length = size % sizeof(ushort);
     int give_me_freedom = 0;
     // If the input is not a multiple of the hash block size pad with 0s
@@ -76,18 +126,23 @@ ushort hash(datum key){
 }
 
 int main(int argc, char * argv[]){
-    datum r;
-    int val;
+    datum key;
+    datum val;
+    hashmap * map = init_hash();
+    int k;
     int n = 10;
     if(argc > 1)
         srand(atoi(argv[1]));
     if(argc > 2)
         n = atoi(argv[2]);
-    r.size = sizeof(int);
+    key.size = sizeof(int);
+    val.size = sizeof(int);
     for(int i = 0; i < n; i++){
-        val = rand();
-        r.data = &val;
-        printf("%d\n", hash(r));
+        k = rand();
+        key.data = &k;
+        val.data = &i;
+        printf("%d\n", hash(&key));
+        add(&key, &val, map);
     }
     return 0;
 }
