@@ -1,85 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 #include "hash.h"
+#include "datum.h"
 
-void add(struct datum * key, struct datum * data, struct hashmap * map){
-    size_t index = hash(key); 
-    //bool conflict;
-    if(index < map->size){
-        struct bin * b = init_bin(); 
-        b->val = data;
-        b->key = key;
-        b->next = map->table[index];
-        map->table[index] = b;
-    } else {
-        fprintf(stderr, "Hash key (%lu) is out of bounds\n", index);
-        exit(EXIT_FAILURE);
+byte xor_all(struct datum * d, byte hash){
+    byte * v = (byte *) d->data;
+    hash = 0;
+    for(int i = 0; i < d->size; i++){
+        hash ^= v[i];
     }
-}
-
-struct datum * get(struct datum * key, struct hashmap * map){
-    size_t index = hash(key); 
-    if(index < map->size){
-        struct bin * b = map->table[index];
-        while(true){
-            if(!b)
-                return NULL;      
-            if(key_matches_bin(key, b)){
-                return b->val; 
-            }
-            b = b->next;
-        }
-    } else {
-        fprintf(stderr, "Something is wrong with the hashing algorithm");
-        exit(EXIT_FAILURE);
-    }
-}
-
-void del(struct datum * key, struct hashmap * map){}
-
-void dump(struct hashmap * map){}
-
-struct bin * init_bin(){
-    struct bin * b = (struct bin *)malloc(sizeof(struct bin));
-    b->val = 0;
-    b->key  = 0;
-    b->next = 0;
-    return(b);
-}
-
-void free_bin(struct bin * b){
-    if(b){
-        if(b->next)        
-            free_bin(b->next);
-        free(b);
-    }
-}
-
-struct hashmap * init_hash(){
-    struct hashmap * map = (struct hashmap *)malloc(sizeof(struct hashmap));
-    map->size = HASH_SIZE;
-    map->conflicts = 0;
-    map->table = (struct bin **)malloc(map->size * sizeof(struct bin *));
-    // This is essential: checks for missing keys require NULL if unset
-    for(size_t i = 0; i < map->size; i++)
-        map->table[i] = NULL;
-    return map;
-}
-
-void free_hash(struct hashmap * map){
-    if(map){
-        if(map->table){
-            for(int i = 0; i < map->size; i++){
-                if(map->table[i])
-                    free_bin(map->table[i]);
-            }
-            free(map->table);
-        }
-        free(map);
-    }
+    return(hash); 
 }
 
 ushort swap(ushort x, size_t a, size_t b){
@@ -97,26 +29,6 @@ ushort swap(ushort x, size_t a, size_t b){
         return x;
     return (x & (1 << a)) >> (a - b) |
            (x & (1 << b)) << (a - b) | x;
-}
-
-void print_binary(struct datum * d){
-    byte * v = (byte *) d->data;
-    for(int i = d->size - 1; i > -1; i--){
-        for(byte mask = 128; mask != 0; mask >>= 1){
-            printf("%d", v[i] & mask ? 1 : 0);
-        }
-        printf(" ");
-    }
-    printf("\n");
-}
-
-byte xor_all(struct datum * d, byte hash){
-    byte * v = (byte *) d->data;
-    hash = 0;
-    for(int i = 0; i < d->size; i++){
-        hash ^= v[i];
-    }
-    return(hash); 
 }
 
 ushort hash(struct datum * key){
@@ -143,27 +55,4 @@ ushort hash(struct datum * key){
     if(give_me_freedom)
         free(k);
     return hash; 
-}
-
-int main(int argc, char * argv[]){
-    struct datum key;
-    struct datum val;
-    struct hashmap * map = init_hash();
-    int k;
-    int n = 10;
-    if(argc > 1)
-        srand(atoi(argv[1]));
-    if(argc > 2)
-        n = atoi(argv[2]);
-    key.size = sizeof(int);
-    val.size = sizeof(int);
-    for(int i = 0; i < n; i++){
-        k = rand();
-        key.data = &k;
-        val.data = &i;
-        printf("%d\n", hash(&key));
-        add(&key, &val, map);
-    }
-    free_hash(map);
-    return 0;
 }

@@ -1,7 +1,8 @@
 TARGET=hash
 
-${TARGET}: ${TARGET}.c
-	cc -g -Wall -o ${TARGET} ${TARGET}.[ch]
+all:
+	cc -g -Wall -O2 -o ${TARGET} *.[ch]
 
+.PHONY: clean
 clean:
 	rm -f ${TARGET}.o ${TARGET}	

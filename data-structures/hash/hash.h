@@ -2,13 +2,10 @@
 #define __HASH_H__
 
 #include <stdlib.h>
+#include <string.h>
 
-#define SALT 18747
-#define HASH_SIZE 65536
-
-#define byte unsigned char
-#define uint unsigned int
-#define ushort unsigned short
+#include "global.h"
+#include "datum.h"
 
 // Rotate one byte left
 #define byte_rotl(x) (x) << 1 ^ (x) >> 7
@@ -22,57 +19,8 @@
 #define grotl(x,n,k) (x) << ((k) % (n)) ^ (x) >> ((n) - ((k) % (n)))
 #define grotr(x,n,k) (x) >> ((k) % (n)) ^ (x) << ((n) - ((k) % (n)))
 
-#define key_matches_bin(k,b) \
-    k->size == b->key->size && memcmp(k->data, b->key->data, b->key->size) == 0 
-
-struct datum {
-    void * data;
-    size_t size;
-};
-
-struct bin {
-    struct datum * val;
-    struct datum * key;
-    struct bin * next;
-};
-
-struct hashmap {
-    size_t size;
-    uint conflicts; // Number of conflicting key hashes
-    struct bin ** table;
-};
-
-void free_bin(struct bin *);
-
-struct bin * init_bin();
-
-void free_hash(struct hashmap * map);
-
-struct hashmap * init_hash();
-
-/* Add an entry to a hashmap
- *
- * Get the hashmap table index via the hash function and the given key
- *
- * Create a new bin structure from the key and data.
- *
- * Add the new bin the to beginning of the list. If there was already a bin at
- * this index, increment the conflict count. 
- *
- */
-void add(struct datum * key, struct datum * data, struct hashmap * map);
-
-struct datum * get(struct datum * key, struct hashmap * map);
-
-void del(struct datum * key, struct hashmap * map);
-
-void dump(struct hashmap * map);
-
 /* Swap two bits in an unsigned short */
 ushort swap(ushort x, size_t a, size_t b);
-
-/* Print data in binary, bytes separated by spaces */
-void print_binary(struct datum *);
 
 /* XOR all byte together and return */
 byte xor_all(struct datum *, byte hash);
