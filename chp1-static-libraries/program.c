@@ -3,6 +3,6 @@
 
 int main()
 {
-   bill("hello world");
+    bill("hello world");
     exit(0);
 }
