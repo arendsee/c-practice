@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "hash.h"
 
 void add(struct datum * key, struct datum * data, struct hashmap * map){
     size_t index = hash(key); 
+    //bool conflict;
     if(index < map->size){
         struct bin * b = init_bin(); 
-        b->data = data;
+        b->val = data;
         b->key = key;
         b->next = map->table[index];
         map->table[index] = b;
@@ -18,7 +20,23 @@ void add(struct datum * key, struct datum * data, struct hashmap * map){
     }
 }
 
-void get(struct datum * key, struct hashmap * map){}
+struct datum * get(struct datum * key, struct hashmap * map){
+    size_t index = hash(key); 
+    if(index < map->size){
+        struct bin * b = map->table[index];
+        while(true){
+            if(!b)
+                return NULL;      
+            if(key_matches_bin(key, b)){
+                return b->val; 
+            }
+            b = b->next;
+        }
+    } else {
+        fprintf(stderr, "Something is wrong with the hashing algorithm");
+        exit(EXIT_FAILURE);
+    }
+}
 
 void del(struct datum * key, struct hashmap * map){}
 
@@ -26,7 +44,7 @@ void dump(struct hashmap * map){}
 
 struct bin * init_bin(){
     struct bin * b = (struct bin *)malloc(sizeof(struct bin));
-    b->data = 0;
+    b->val = 0;
     b->key  = 0;
     b->next = 0;
     return(b);

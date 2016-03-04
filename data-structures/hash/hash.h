@@ -22,13 +22,16 @@
 #define grotl(x,n,k) (x) << ((k) % (n)) ^ (x) >> ((n) - ((k) % (n)))
 #define grotr(x,n,k) (x) >> ((k) % (n)) ^ (x) << ((n) - ((k) % (n)))
 
+#define key_matches_bin(k,b) \
+    k->size == b->key->size && memcmp(k->data, b->key->data, b->key->size) == 0 
+
 struct datum {
     void * data;
     size_t size;
 };
 
 struct bin {
-    struct datum * data;
+    struct datum * val;
     struct datum * key;
     struct bin * next;
 };
@@ -59,7 +62,7 @@ struct hashmap * init_hash();
  */
 void add(struct datum * key, struct datum * data, struct hashmap * map);
 
-void get(struct datum * key, struct hashmap * map);
+struct datum * get(struct datum * key, struct hashmap * map);
 
 void del(struct datum * key, struct hashmap * map);
 
