@@ -63,7 +63,9 @@ struct hashmap * init_hash(){
     map->size = HASH_SIZE;
     map->conflicts = 0;
     map->table = (struct bin **)malloc(map->size * sizeof(struct bin *));
-    memset(map->table, 0, map->size);
+    // This is essential: checks for missing keys require NULL if unset
+    for(size_t i = 0; i < map->size; i++)
+        map->table[i] = NULL;
     return map;
 }
 
@@ -162,5 +164,6 @@ int main(int argc, char * argv[]){
         printf("%d\n", hash(&key));
         add(&key, &val, map);
     }
+    free_hash(map);
     return 0;
 }
