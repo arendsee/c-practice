@@ -47,7 +47,6 @@ void free_hashmap(struct hashmap * map){
 
 void add(struct datum * key, struct datum * data, struct hashmap * map){
     size_t index = hash(key); 
-    //bool conflict;
     if(index < map->size){
         struct bucket * b = init_bucket(); 
         b->val = data;
@@ -78,6 +77,27 @@ struct datum * get(struct datum * key, struct hashmap * map){
     }
 }
 
-void del(struct datum * key, struct hashmap * map){}
+void del(struct datum * key, struct hashmap * map){
+    size_t index = hash(key); 
+    if(index < map->size){
+        struct bucket * prev_bucket = NULL;
+        struct bucket * this_bucket = map->table[index];
+        while(true){
+            if(!this_bucket)
+                break;
+            if(key_matches_bucket(key, this_bucket)){
+                if(prev_bucket){
+                    prev_bucket->next = this_bucket->next;
+                } else {
+                    map->table[index] = NULL;
+                }
+                free(this_bucket);
+                break;
+            }
+            prev_bucket = this_bucket;
+            this_bucket = this_bucket->next;
+        }
+    }
+}
 
 void dump(struct hashmap * map){}
