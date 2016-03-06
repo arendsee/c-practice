@@ -4,9 +4,6 @@
 #include "datum.h"
 #include "global.h"
 
-#define key_matches_bucket(k,b) \
-    k->size == b->key->size && memcmp(k->data, b->key->data, b->key->size) == 0 
-
 struct bucket {
     struct datum * val;
     struct datum * key;

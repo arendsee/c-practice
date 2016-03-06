@@ -7,7 +7,6 @@
 
 int main(int argc, char * argv[]){
     struct hashmap * map = init_hash();
-    /* TODO - write more rigorous test
     struct datum key;
     struct datum val;
     int k;
@@ -25,6 +24,8 @@ int main(int argc, char * argv[]){
         //printf("%d\n", hash(&key));
         add(&key, &val, map);
     }
+    dump(map);
+    /* TODO - write more rigorous test
     if(argc > 1)
         srand(atoi(argv[1]));
     for(int i = 0; i < n; i++){

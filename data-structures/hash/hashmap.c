@@ -5,6 +5,9 @@
 #include "hash.h"
 #include "datum.h"
 
+#define key_matches_bucket(k,b) \
+    k->size == b->key->size && memcmp(k->data, b->key->data, b->key->size) == 0 
+
 struct bucket * init_bucket(){
     struct bucket * b = (struct bucket *)malloc(sizeof(struct bucket));
     b->val  = 0;
@@ -104,6 +107,14 @@ void del(struct datum * key, struct hashmap * map){
 
 void dump(struct hashmap * map){
     for(int i = 0; i < map->index_size; i++){
-        
+        struct bucket * b = map->table[i];
+        if(b){
+            printf("%d ", i);
+            while(b){
+                printf(".");
+                b = b->next;
+            }
+            printf("\n");
+        }
     }
 }
