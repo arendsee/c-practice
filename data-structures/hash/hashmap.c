@@ -23,11 +23,11 @@ void free_bucket(struct bucket * b){
 
 struct hashmap * init_hash(){
     struct hashmap * map = (struct hashmap *)malloc(sizeof(struct hashmap));
-    map->size = HASH_SIZE;
-    map->conflicts = 0;
-    map->table = (struct bucket **)malloc(map->size * sizeof(struct bucket *));
+    map->index_size = HASH_SIZE;
+    map->size = 0;
+    map->table = (struct bucket **)malloc(map->index_size * sizeof(struct bucket *));
     // This is essential: checks for missing keys require NULL if unset
-    for(size_t i = 0; i < map->size; i++)
+    for(size_t i = 0; i < map->index_size; i++)
         map->table[i] = NULL;
     return map;
 }
@@ -35,7 +35,7 @@ struct hashmap * init_hash(){
 void free_hashmap(struct hashmap * map){
     if(map){
         if(map->table){
-            for(int i = 0; i < map->size; i++){
+            for(int i = 0; i < map->index_size; i++){
                 if(map->table[i])
                     free_bucket(map->table[i]);
             }
@@ -47,12 +47,13 @@ void free_hashmap(struct hashmap * map){
 
 void add(struct datum * key, struct datum * data, struct hashmap * map){
     size_t index = hash(key); 
-    if(index < map->size){
+    if(index < map->index_size){
         struct bucket * b = init_bucket(); 
         b->val = data;
         b->key = key;
         b->next = map->table[index];
         map->table[index] = b;
+        map->size++;
     } else {
         fprintf(stderr, "Hash key (%lu) is out of bounds\n", index);
         exit(EXIT_FAILURE);
@@ -61,7 +62,7 @@ void add(struct datum * key, struct datum * data, struct hashmap * map){
 
 struct datum * get(struct datum * key, struct hashmap * map){
     size_t index = hash(key); 
-    if(index < map->size){
+    if(index < map->index_size){
         struct bucket * b = map->table[index];
         while(true){
             if(!b)
@@ -79,7 +80,7 @@ struct datum * get(struct datum * key, struct hashmap * map){
 
 void del(struct datum * key, struct hashmap * map){
     size_t index = hash(key); 
-    if(index < map->size){
+    if(index < map->index_size){
         struct bucket * prev_bucket = NULL;
         struct bucket * this_bucket = map->table[index];
         while(true){
@@ -92,6 +93,7 @@ void del(struct datum * key, struct hashmap * map){
                     map->table[index] = NULL;
                 }
                 free(this_bucket);
+                map->size--;
                 break;
             }
             prev_bucket = this_bucket;
@@ -100,4 +102,8 @@ void del(struct datum * key, struct hashmap * map){
     }
 }
 
-void dump(struct hashmap * map){}
+void dump(struct hashmap * map){
+    for(int i = 0; i < map->index_size; i++){
+        
+    }
+}

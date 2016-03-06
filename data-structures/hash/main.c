@@ -6,16 +6,16 @@
 #include "hash.h"
 
 int main(int argc, char * argv[]){
+    struct hashmap * map = init_hash();
+    /* TODO - write more rigorous test
     struct datum key;
     struct datum val;
-    struct hashmap * map = init_hash();
     int k;
     int n = 10;
     if(argc > 1)
         srand(atoi(argv[1]));
     if(argc > 2)
         n = atoi(argv[2]);
-    /* TODO - write more rigorous test
     key.size = sizeof(int);
     val.size = sizeof(int);
     for(int i = 0; i < n; i++){

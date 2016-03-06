@@ -18,8 +18,8 @@ void free_bucket(struct bucket *);
 struct bucket * init_bucket();
 
 struct hashmap {
+    size_t index_size;
     size_t size;
-    uint conflicts; // Number of conflicting key hashes
     struct bucket ** table;
 };
 
