@@ -6,4 +6,4 @@ all:
 	gcc ${CFLAGS} -o tree *.c *.h
 
 clean:
-	rm -f gen tree intervals.tab
+	rm -f gen tree intervals.tab *.gch *.o *.s
