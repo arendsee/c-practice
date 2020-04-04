@@ -2,3 +2,5 @@
 *.dir
 *.pag
 *.db
+*.o
+*.gch
